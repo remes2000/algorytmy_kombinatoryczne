@@ -8,10 +8,10 @@ def rank(input_set, n):
     k = len(input_set)
     for i in range(0, k):
         result += binom(n, i)
-    result += kSubsetLexRank(input_set, n)
+    result += k_subset_lex_rank(input_set, n)
     return result
 
-def kSubsetLexRank(input_set, n):
+def k_subset_lex_rank(input_set, n):
     result = 0
     k = len(input_set)
     t = [0] + input_set
@@ -28,9 +28,9 @@ def unrank(rank_value, n):
         rank_value -= binom_value
         k += 1
         binom_value = binom(n,k)
-    return kSubsetLexUnrank(rank_value, n, k)
+    return k_subset_lex_unrank(rank_value, n, k)
 
-def kSubsetLexUnrank(rank_value, n, k):
+def k_subset_lex_unrank(rank_value, n, k):
     x = 1
     result = []
     for i in range(1, k+1):
@@ -43,13 +43,29 @@ def kSubsetLexUnrank(rank_value, n, k):
         x += 1
     return result
 
-# todo re-write this
 def succ(input_set, n):
-    return unrank(rank(input_set, n)+1, n)
-
-# todo re-write thisss
+    t = [0] + input_set
+    max_value = n
+    for i in reversed(range(1, len(input_set)+1)):
+        if t[i]+1 > t[i-1] and t[i]+1 <= max_value:
+            t[i] += 1
+            for j in range(i+1, len(input_set)+1):
+                t[j] = t[j-1] + 1
+            return t[1:] 
+        max_value = t[i]-1
+    if len(t) > n: # no successor
+        return []
+    return [*range(1, len(input_set)+2)]
+    
 def pred(input_set, n):
-    return unrank(rank(input_set, n)-1, n)
+    t = [0] + input_set
+    for i in reversed(range(1, len(input_set)+1)):
+        if t[i]-1 > t[i-1] and t[i]-1 > 0:
+            t[i] = t[i] - 1
+            return t[1:i+1] + [*range(n - (len(input_set) - i - 1), n+1)]
+    if len(input_set) - 1 < 0: # no predecessor
+        return []
+    return [*range(n - (len(input_set) - 2), n+1)]
 
 def print_set(input_set, label=''):
     print(label, end='')
